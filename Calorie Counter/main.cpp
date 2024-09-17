@@ -142,35 +142,42 @@ void writePersonToFile(const std::string& filename, User& person) {
     }
 }
 
-void createFile(const std::string& filename, int number) {
+void createFile(User& user, int number) {
     // Получаем текущее время и форматируем его
     std::time_t t = std::time(nullptr);
     char buffer[80];
     std::strftime(buffer, sizeof(buffer), "%d.%m.%Y", std::localtime(&t));
 
+    // Создаём полное имя файла с расширением .txt
+    std::string filename1 = user.username + ".txt";
+
     // Открываем файл для записи
-    std::ofstream outFile(filename + ".txt");
+    std::ofstream outFile(filename1);
     if (!outFile) {
         std::cerr << "Ошибка при открытии файла для записи!" << std::endl;
         return;
     }
 
     // Записываем данные в файл
-    outFile << "Число: " << number << std::endl;
+    outFile << "колорий получено: " << number << std::endl;
     outFile << "Дата: " << buffer << std::endl;
 
     // Закрываем файл
     outFile.close();
 }
-void readFile(const std::string& filename) {
+
+void readFile(User& user) {
+    // Создаём полное имя файла с расширением .txt
+    std::string filename1 = user.username + ".txt";
+
     // Открываем файл для чтения
-    std::ifstream inFile(filename);
+    std::ifstream inFile(filename1);
     if (!inFile) {
         std::cerr << "Ошибка при открытии файла для чтения!" << std::endl;
         return;
     }
 
-    // Считываем и выводим содержимое файла
+    // Читаем данные из файла и выводим их на экран
     std::string line;
     while (std::getline(inFile, line)) {
         std::cout << line << std::endl;
@@ -282,9 +289,11 @@ int main() {
                 break;
             case 2:
                 viewTotalCalories(db, username1);
-                createFile(username, db.getTotalCalories(username));
+                createFile(User, db.getTotalCalories(username));
                 break;
             case 3:
+                readFile(User);
+            case 4:
                 return 0; // Exit the program
             default:
                 std::cout << "Неправильный выбор. Пожалуйста, попробуйте снова." << std::endl;
