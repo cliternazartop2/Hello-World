@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include <sstream>
 #include <iostream>
 #include <string>
@@ -19,7 +20,7 @@ struct User {
 // Структура для хранения информации о продуктах
 struct Food {
     string name;     // название продукта
-    int calories; // количество калорий
+    int calories{}; // количество калорий
 };
 
 // Класс для работы с базой данных
@@ -107,11 +108,12 @@ void addFoodIntake(Database& db, const string& username) {
 // Функция для просмотра общего количества потребленных калорий
 void viewTotalCalories(Database& db, const string& username) {
     double totalCalories = db.getTotalCalories(username);
-    cout << "Общее количество потребленных калорий для " << username << ": " << totalCalories << " ккал" << endl;
+    cout << "Общее количество потребленных калорий " << username << ": " << totalCalories << " ккал" << endl;
 }
 void registerUser1() {
-    cout << "1. зарегистрировать нового пользователя";
-    cout << "2. войти в аккаунт";
+    cout << "1. зарегистрировать нового пользователя" << endl;
+    cout << "2. войти в аккаунт" << endl;
+    cout << "3. войти без регистрации" << endl;
 }
 // Функция для отображения меню
 void displayMenu() {
@@ -139,7 +141,44 @@ void writePersonToFile(const std::string& filename, User& person) {
         std::cerr << "Ошибка открытия файла!" << std::endl;
     }
 }
-// нахождение строчек в фаиле 
+
+void createFile(const std::string& filename, int number) {
+    // Получаем текущее время и форматируем его
+    std::time_t t = std::time(nullptr);
+    char buffer[80];
+    std::strftime(buffer, sizeof(buffer), "%d.%m.%Y", std::localtime(&t));
+
+    // Открываем файл для записи
+    std::ofstream outFile(filename + ".txt");
+    if (!outFile) {
+        std::cerr << "Ошибка при открытии файла для записи!" << std::endl;
+        return;
+    }
+
+    // Записываем данные в файл
+    outFile << "Число: " << number << std::endl;
+    outFile << "Дата: " << buffer << std::endl;
+
+    // Закрываем файл
+    outFile.close();
+}
+void readFile(const std::string& filename) {
+    // Открываем файл для чтения
+    std::ifstream inFile(filename);
+    if (!inFile) {
+        std::cerr << "Ошибка при открытии файла для чтения!" << std::endl;
+        return;
+    }
+
+    // Считываем и выводим содержимое файла
+    std::string line;
+    while (std::getline(inFile, line)) {
+        std::cout << line << std::endl;
+    }
+
+    // Закрываем файл
+    inFile.close();
+}
 bool findConcatenatedString(const std::string& filename, const std::string& firstWord, const std::string& secondWord,
     std::string& firstString, int& firstInt, std::string& secondString, int& secondInt) {
 
@@ -183,25 +222,27 @@ bool findConcatenatedString(const std::string& filename, const std::string& firs
                 inFile.close();
                 return false;
             }
-
-            std::cout << "Найдена строка: " << line << std::endl;
-            inFile.close();
-            return true;
+                std::cout << "Успешный вход!" << std::endl;
+                inFile.close();
+                return true;
+            }
         }
+
+        std::cout << "Строка не найдена." << std::endl;
+        inFile.close();
+        return false;
     }
 
-    std::cout << "Строка не найдена." << std::endl;
-    inFile.close();
-    return false;
-}
 // Главная функция
 int main() {
     setlocale(LC_ALL, "rus");
+    bool wrong = false;
     std::string username1;
     std::string password1;
+    Food food;
     User User;
     FILE* fp;
-    const char* path = { "starybox.txt" };
+    const char* path = { "starybox1.txt" };
     Database db;
     int choice;
     int choise1;
@@ -211,41 +252,55 @@ int main() {
     while (true) {
         switch (choise1) {
         case 1:
-            registerUser(db, User);
-            writePersonToFile(path, User);
-            choise1 = 3;
+            registerUser(db, User);  // Assuming registerUser handles user data appropriately
+            writePersonToFile(path, User); // Write to file
+            choise1 = 3; // Move to the main menu after registration
             break;
+
         case 2:
             std::cout << "Введите имя пользователя: ";
             std::cin >> username1;
             std::cout << "Введите пароль: ";
             std::cin >> password1;
+
             if (findConcatenatedString(path, username1, password1, User.username, User.height, User.password, User.weight)) {
-                choise1 = 3;
+                choise1 = 3; // Move to the main menu after successful login
+            }
+            else {
+                std::cout << "Неправильные учетные данные. Пожалуйста, попробуйте снова." << std::endl;
+                wrong = true; // Indicate a wrong choice
             }
             break;
+
         case 3:
             displayMenu();
-            cin >> choice;
+            int choice;
+            std::cin >> choice;
             switch (choice) {
             case 1:
-                cout << "Введите имя пользователя: ";
-                cin >> username;
-                addFoodIntake(db, username);
+                addFoodIntake(db, username1);
                 break;
             case 2:
-                cout << "Введите имя пользователя: ";
-                cin >> username;
-                viewTotalCalories(db, username);
+                viewTotalCalories(db, username1);
+                createFile(username, db.getTotalCalories(username));
                 break;
             case 3:
-                return 0;
+                return 0; // Exit the program
             default:
-                cout << "Неправильный выбор. Пожалуйста, попробуйте снова." << endl;
+                std::cout << "Неправильный выбор. Пожалуйста, попробуйте снова." << std::endl;
+                wrong = true; // Indicate a wrong choice
             }
+            break;
+
+        default:
+            std::cout << "Неправильный ввод" << std::endl;
+            wrong = true; // Flag a wrong choice
+        }
+
+        // Check for wrong input to break the loop
+        if (wrong) {
             break;
         }
     }
-
     return 0;
 }
