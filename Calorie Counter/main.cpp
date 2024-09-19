@@ -8,7 +8,7 @@
 #include <fstream>
 #include "starybox.h"
 using namespace std;
-
+//чтото менятся
 // Структура для хранения информации о пользователе
 struct User {
     string username; // имя пользователя
