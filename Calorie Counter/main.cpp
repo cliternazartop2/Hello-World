@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <limits>
 #include <fstream>
-
+#include "starybox.h"
 using namespace std;
 
 // Структура для хранения информации о пользователе
@@ -120,7 +120,8 @@ void displayMenu() {
     cout << "СЧЕТЧИК КАЛОРИЙ" << endl;
     cout << "1. Добавить информацию о продуктах" << endl;
     cout << "2. Посмотреть общее количество калорий" << endl;
-    cout << "3. Выход" << endl;
+    cout << "3. получено калорий в прошлы раз" << endl;
+    cout << "4. выход" << endl;
 }
 void writePersonToFile(const std::string& filename, User& person) {
     std::ofstream outFile;
@@ -186,59 +187,6 @@ void readFile(User& user) {
     // Закрываем файл
     inFile.close();
 }
-bool findConcatenatedString(const std::string& filename, const std::string& firstWord, const std::string& secondWord,
-    std::string& firstString, int& firstInt, std::string& secondString, int& secondInt) {
-
-    std::ifstream inFile(filename);
-    if (!inFile.is_open()) {
-        std::cerr << "Не удалось открыть файл " << filename << std::endl;
-        return false;
-    }
-
-    // Склеиваем слова
-    std::string searchString = firstWord + "_" + secondWord;
-    std::string line;
-
-    // Ищем строку
-    while (std::getline(inFile, line)) {
-        if (line.find(searchString) != std::string::npos) {
-            std::istringstream iss(line);
-            std::string tempString;
-
-            // Читаем строку до первого подчеркивания
-            if (std::getline(iss, tempString, '_')) {
-                firstString = tempString; // Сохраняем первую строку
-            }
-            if (std::getline(iss, tempString, '_')) {
-                secondString = tempString; // Сохраняем вторую строку
-            }
-            // Читаем целое число
-            if (!(iss >> firstInt)) {
-                std::cerr << "Ошибка при чтении первого числа." << std::endl;
-                inFile.close();
-                return false;
-            }
-            iss.ignore(); // Игнорируем следующий символ подчеркивания
-
-            // Читаем вторую строку
-
-
-            // Читаем второе целое число
-            if (!(iss >> secondInt)) {
-                std::cerr << "Ошибка при чтении второго числа." << std::endl;
-                inFile.close();
-                return false;
-            }
-                std::cout << "Успешный вход!" << std::endl;
-                inFile.close();
-                return true;
-            }
-        }
-
-        std::cout << "Строка не найдена." << std::endl;
-        inFile.close();
-        return false;
-    }
 
 // Главная функция
 int main() {
@@ -293,6 +241,7 @@ int main() {
                 break;
             case 3:
                 readFile(User);
+                break;
             case 4:
                 return 0; // Exit the program
             default:
